@@ -4,4 +4,6 @@ plugins {
 
 dependencies {
     implementation(libs.slf4j.api)
+
+    testImplementation(libs.logback.classic)
 }
