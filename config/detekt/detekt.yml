@@ -1,0 +1,43 @@
+# Applied on top of detekt's default configuration (buildUponDefaultConfig = true).
+# Only deviations from the defaults belong here.
+
+config:
+  validation: true
+  warningsAsErrors: true
+
+build:
+  maxIssues: 0
+
+complexity:
+  LongParameterList:
+    # Ktor routes and Koin factories legitimately take several collaborators.
+    constructorThreshold: 8
+    ignoreDefaultParameters: true
+  TooManyFunctions:
+    # Extension-function files (mappers, route helpers) naturally group many small functions.
+    ignorePrivate: true
+    ignoreOverridden: true
+
+naming:
+  FunctionNaming:
+    # Backticked test names read as sentences.
+    excludes: ['**/test/**', '**/testFixtures/**']
+
+style:
+  ForbiddenComment:
+    active: true
+  MagicNumber:
+    excludes: ['**/test/**', '**/testFixtures/**']
+    ignorePropertyDeclaration: true
+    ignoreCompanionObjectPropertyDeclaration: true
+    ignoreNamedArgument: true
+  MaxLineLength:
+    # Kept in sync with .editorconfig, which ktlint enforces.
+    maxLineLength: 160
+    excludes: ['**/test/**']
+  UnusedPrivateMember:
+    active: true
+  ReturnCount:
+    max: 3
+  ThrowsCount:
+    active: true

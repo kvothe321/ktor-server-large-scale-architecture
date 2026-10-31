@@ -1,0 +1,14 @@
+#!/bin/sh
+# Pre-commit hook: blocks the commit when ktlint or detekt report issues.
+# Install with: ./gradlew installGitHooks
+
+echo "Running ktlintCheck and detekt..."
+
+if ! ./gradlew ktlintCheck detekt --quiet --daemon; then
+    echo ""
+    echo "*********************************************************"
+    echo "Code quality checks failed. Commit aborted."
+    echo "Auto-fix formatting with: ./gradlew ktlintFormat"
+    echo "*********************************************************"
+    exit 1
+fi
