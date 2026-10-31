@@ -2,6 +2,7 @@ package com.tlpcraft.ktor.template.buildlogic
 
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.plugins.BasePluginExtension
 import org.gradle.kotlin.dsl.apply
 import org.gradle.kotlin.dsl.configure
 import org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension
@@ -16,6 +17,12 @@ class KotlinJvmConventionPlugin : Plugin<Project> {
         apply<DetektConventionPlugin>()
         apply<KtlintConventionPlugin>()
         apply<TestingConventionPlugin>()
+
+        // Leaf names repeat across modules (`data`, `domain`, ...); name jars after the full path
+        // so they don't collide in the application distribution: feature-notes-data.jar.
+        extensions.configure<BasePluginExtension> {
+            archivesName.set(path.removePrefix(":").replace(':', '-'))
+        }
 
         extensions.configure<KotlinJvmProjectExtension> {
             jvmToolchain(libs.version("jvmToolchain").toInt())
