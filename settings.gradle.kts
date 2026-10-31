@@ -27,3 +27,4 @@ include(
     ":core:server",
     ":core:testing"
 )
+include(":feature:notes", ":feature:notes:domain", ":feature:notes:data", ":feature:notes:presentation")
