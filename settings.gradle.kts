@@ -28,7 +28,7 @@ include(
     ":core:testing"
 )
 
-include(features("weather", "notes"))
+include(features("weather", "notes", "images"))
 
 /** Every feature is a wiring module plus its three clean-architecture layers. */
 fun features(vararg names: String): List<String> = names.flatMap { name ->
