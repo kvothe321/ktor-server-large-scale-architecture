@@ -1,11 +1,12 @@
 plugins {
     alias(libs.plugins.template.kotlin.jvm)
-    alias(libs.plugins.kotlin.serialization)
 }
 
 dependencies {
-    implementation(projects.feature.notes.domain)
+    // Exposed in the public factory signatures, so consumers need them too.
+    api(projects.feature.notes.domain)
+    api(projects.core.database)
+    api(projects.core.logger)
+
     implementation(projects.core.data)
-    implementation(projects.core.database)
-    implementation(projects.core.logger)
 }

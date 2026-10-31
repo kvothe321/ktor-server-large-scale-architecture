@@ -174,8 +174,8 @@ Say the feature is called `bookmarks`:
    `include(features("weather", "notes", "images", "bookmarks"))`.
 2. **Create the four build files**, copying them from `feature/notes`:
    - `feature/bookmarks/domain/build.gradle.kts`: `template.kotlin.jvm` + `java-test-fixtures`, `api(projects.core.domain)`
-   - `feature/bookmarks/data/build.gradle.kts`: `template.kotlin.jvm`, depends on its `domain`, `core:data`, `core:database`, `core:logger`
-   - `feature/bookmarks/presentation/build.gradle.kts`: `template.ktor.feature`, depends on its `domain`
+   - `feature/bookmarks/data/build.gradle.kts`: `template.kotlin.jvm`; `api` on its `domain` and on every core module its public factories expose (`core:database`, `core:logger`), `implementation` on `core:data`
+   - `feature/bookmarks/presentation/build.gradle.kts`: `template.ktor.feature`, `api` on its `domain`
    - `feature/bookmarks/build.gradle.kts`: `template.ktor.feature`, depends on all three layers
 3. **Domain** (`com.tlpcraft.ktor.template.feature.bookmarks.domain`): entity, `BookmarkError`
    (`sealed interface : DomainError`), `BookmarkRepository` port, use cases. Put a fake repository in

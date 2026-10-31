@@ -31,7 +31,6 @@ ktor {
 }
 
 dependencies {
-    implementation(projects.core.model)
     implementation(projects.core.domain)
     implementation(projects.core.logger)
     implementation(projects.core.data)

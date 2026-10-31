@@ -3,5 +3,6 @@ plugins {
 }
 
 dependencies {
-    implementation(projects.feature.notes.domain)
+    // Route constructors take the domain's use cases.
+    api(projects.feature.notes.domain)
 }

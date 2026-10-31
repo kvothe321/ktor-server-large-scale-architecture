@@ -4,11 +4,13 @@ plugins {
 }
 
 dependencies {
-    implementation(projects.feature.weather.domain)
+    // Exposed in the public factory signatures, so consumers need them too.
+    api(projects.feature.weather.domain)
+    api(projects.core.database)
+    api(projects.core.logger)
+    api(projects.core.network)
+
     implementation(projects.core.data)
-    implementation(projects.core.database)
-    implementation(projects.core.logger)
-    implementation(projects.core.network)
 
     testImplementation(libs.ktor.client.mock)
 }

@@ -3,5 +3,6 @@ plugins {
 }
 
 dependencies {
-    implementation(projects.feature.weather.domain)
+    // Route constructors take the domain's use cases.
+    api(projects.feature.weather.domain)
 }
