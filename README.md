@@ -67,6 +67,7 @@ and `images:data` uses `core:storage`.
 | `…:domain`        | Entities, repository ports, use cases, typed errors. Pure Kotlin. Fakes in `testFixtures`        |
 | `…:data`          | Repository implementations (Exposed, HTTP, file storage); internal, exposed through factories   |
 | `…:presentation`  | Routes, DTOs, error-to-HTTP mapping, OpenAPI descriptions                                        |
+| `e2e`             | Black-box end-to-end suite: HTTP client only, no dependency on any server module                 |
 
 ### Rules the structure enforces
 
@@ -88,6 +89,7 @@ and `images:data` uses `core:storage`.
 | `template.testing`        | (via `kotlin.jvm`)       | JUnit Platform, kotlin.test, coroutines-test, `core:testing`         |
 | `template.detekt`         | (via `kotlin.jvm`)       | detekt on top of the default rules, `config/detekt/detekt.yml`       |
 | `template.ktlint`         | (via `kotlin.jvm`)       | kotlinter; `ktlintCheck` / `ktlintFormat` aliases                    |
+| `template.e2e`            | `e2e`                    | `e2eTest` source set and task, server lifecycle for the suite        |
 | `template.git.hooks`      | root project             | `installGitHooks` task                                               |
 
 ktlint uses the `ktlint_official` style, configured in [`.editorconfig`](.editorconfig).
@@ -165,6 +167,41 @@ Any `@Suppress` needs a one-line justification comment.
 | Data         | `feature:<name>:data` tests        | Real Exposed repositories on in-memory H2; `MockEngine` for HTTP       |
 | Routes       | `feature:<name>` tests             | `testFeature(...)`: real wiring, H2, `testApplication`, JSON client    |
 | Application  | `app` tests                        | Full `module()`: health, request ids, generated OpenAPI document       |
+| End-to-end   | `e2e` (`./gradlew :e2e:e2eTest`)   | Packaged `app.jar` driven over HTTP only, see below                    |
+
+### End-to-end tests
+
+The `e2e` module treats the server as a black box. It has no project dependencies, keeps its own
+copy of the JSON contract and talks to the API with a plain Ktor client, so a wire-format change
+breaks it the same way it would break a real consumer. Every test creates its own data and makes
+no assumption about what is already stored, so the suite can run against any deployment.
+
+```bash
+# Builds app.jar, starts it (in-memory H2, fake weather provider, random port), runs the suite, stops it
+./gradlew :e2e:e2eTest
+
+# Runs the same suite against a server that is already running, e.g. docker compose
+E2E_BASE_URL=http://localhost:8080 ./gradlew :e2e:e2eTest
+```
+
+In the managed mode the server is configured only through environment variables, exactly as in
+production, and its log is written to `e2e/build/e2e/server.log`. The suite is not part of
+`check` (it needs a running server), but its sources are compiled and linted by `check`.
+
+## Continuous integration
+
+[`.github/workflows/ci.yml`](.github/workflows/ci.yml) runs on pushes to `main`, on pull requests
+and on demand. There is no deployment step.
+
+| Job      | What it runs                                                                                   |
+|----------|------------------------------------------------------------------------------------------------|
+| `build`  | `./gradlew build`: compilation, all unit and integration tests, detekt, ktlint                 |
+| `e2e`    | `./gradlew :e2e:e2eTest` against the packaged app (H2, fake weather provider)                  |
+| `docker` | `docker compose up --build --wait`, then the e2e suite against the container on PostgreSQL     |
+
+The `docker` job calls the real Open-Meteo API for its weather test. Test reports, the server log or
+the container logs are attached to failed runs. Code owners are listed in
+[`.github/CODEOWNERS`](.github/CODEOWNERS).
 
 ## Adding a feature module
 
