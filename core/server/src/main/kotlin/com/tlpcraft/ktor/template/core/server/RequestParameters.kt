@@ -29,9 +29,3 @@ public fun ApplicationCall.uuidParameter(name: String): Outcome<Uuid, Validation
     val uuid = parameters[name]?.let(Uuid::parseOrNull)
     return if (uuid != null) Outcome.Success(uuid) else Outcome.Failure(ValidationError(name, "must be a valid UUID"))
 }
-
-/** Reads the required query parameter [name] as a [Double]. */
-public fun ApplicationCall.doubleQueryParameter(name: String): Outcome<Double, ValidationError> {
-    val value = request.queryParameters[name]?.toDoubleOrNull()
-    return if (value != null) Outcome.Success(value) else Outcome.Failure(ValidationError(name, "is required and must be a number"))
-}

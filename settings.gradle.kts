@@ -27,4 +27,10 @@ include(
     ":core:server",
     ":core:testing"
 )
-include(":feature:notes", ":feature:notes:domain", ":feature:notes:data", ":feature:notes:presentation")
+
+include(features("weather", "notes"))
+
+/** Every feature is a wiring module plus its three clean-architecture layers. */
+fun features(vararg names: String): List<String> = names.flatMap { name ->
+    listOf(":feature:$name", ":feature:$name:domain", ":feature:$name:data", ":feature:$name:presentation")
+}

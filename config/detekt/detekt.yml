@@ -31,6 +31,8 @@ style:
     ignorePropertyDeclaration: true
     ignoreCompanionObjectPropertyDeclaration: true
     ignoreNamedArgument: true
+    # Enum entries are where external code tables (e.g. WMO weather codes) get named.
+    ignoreEnums: true
   MaxLineLength:
     # Kept in sync with .editorconfig, which ktlint enforces.
     maxLineLength: 160
