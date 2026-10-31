@@ -2,6 +2,7 @@ package com.tlpcraft.ktor.template.feature.images.data
 
 import com.tlpcraft.ktor.template.core.data.outcomeCatching
 import com.tlpcraft.ktor.template.core.database.AppDatabase
+import com.tlpcraft.ktor.template.core.database.toDatabasePrecision
 import com.tlpcraft.ktor.template.core.domain.Outcome
 import com.tlpcraft.ktor.template.core.domain.asFailure
 import com.tlpcraft.ktor.template.core.domain.asSuccess
@@ -26,15 +27,18 @@ internal class ExposedImageRepository(
     private val database: AppDatabase,
     private val logger: Logger
 ) : ImageRepository {
-    override suspend fun insert(metadata: ImageMetadata): Outcome<ImageMetadata, ImageError> = query {
-        ImagesTable.insert {
-            it[id] = metadata.id.value
-            it[originalFilename] = metadata.originalFilename
-            it[format] = metadata.format.name
-            it[sizeBytes] = metadata.sizeBytes
-            it[uploadedAt] = metadata.uploadedAt
+    override suspend fun insert(metadata: ImageMetadata): Outcome<ImageMetadata, ImageError> {
+        val stored = metadata.copy(uploadedAt = metadata.uploadedAt.toDatabasePrecision())
+        return query {
+            ImagesTable.insert {
+                it[id] = stored.id.value
+                it[originalFilename] = stored.originalFilename
+                it[format] = stored.format.name
+                it[sizeBytes] = stored.sizeBytes
+                it[uploadedAt] = stored.uploadedAt
+            }
+            stored
         }
-        metadata
     }
 
     override suspend fun find(id: ImageId): Outcome<ImageMetadata, ImageError> = query {

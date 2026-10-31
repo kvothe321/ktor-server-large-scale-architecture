@@ -2,6 +2,7 @@ package com.tlpcraft.ktor.template.feature.weather.data
 
 import com.tlpcraft.ktor.template.core.data.outcomeCatching
 import com.tlpcraft.ktor.template.core.database.AppDatabase
+import com.tlpcraft.ktor.template.core.database.toDatabasePrecision
 import com.tlpcraft.ktor.template.core.domain.DomainError
 import com.tlpcraft.ktor.template.core.domain.Outcome
 import com.tlpcraft.ktor.template.core.domain.getOrNull
@@ -54,7 +55,7 @@ internal class CachingWeatherRepository(
     override suspend fun currentWeather(coordinates: Coordinates): Outcome<WeatherReport, WeatherError> {
         val key = coordinates.toCacheKey()
         val cached = cacheOperation("read") { cache.find(key) }.getOrNull()
-        val now = clock.now()
+        val now = clock.now().toDatabasePrecision()
         if (cached != null && now - cached.fetchedAt < cacheTtl) {
             return Outcome.Success(WeatherReport(cached.weather, cached.fetchedAt, Freshness.CACHED))
         }

@@ -1,7 +1,9 @@
 package com.tlpcraft.ktor.template.core.server
 
 import com.tlpcraft.ktor.template.core.logger.LoggerFactory
+import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
+import io.ktor.http.content.OutgoingContent
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.application.Application
 import io.ktor.server.application.install
@@ -48,11 +50,15 @@ public fun Application.configureErrorHandling(loggerFactory: LoggerFactory) {
             )
             call.respondProblem(ApiProblem.internal())
         }
-        status(HttpStatusCode.NotFound) { call, _ ->
-            call.respondProblem(ApiProblem.notFound("No resource at ${call.request.path()}."))
+        // Fallbacks for responses produced by routing itself (no matching route or method). A
+        // route that already answered with a problem document keeps its more specific detail.
+        status(HttpStatusCode.NotFound) {
+            if (!content.isProblem()) call.respondProblem(ApiProblem.notFound("No resource at ${call.request.path()}."))
         }
-        status(HttpStatusCode.MethodNotAllowed) { call, _ ->
-            call.respondProblem(ApiProblem.methodNotAllowed())
+        status(HttpStatusCode.MethodNotAllowed) {
+            if (!content.isProblem()) call.respondProblem(ApiProblem.methodNotAllowed())
         }
     }
 }
+
+private fun OutgoingContent.isProblem(): Boolean = contentType?.match(ContentType.Application.ProblemJson) == true

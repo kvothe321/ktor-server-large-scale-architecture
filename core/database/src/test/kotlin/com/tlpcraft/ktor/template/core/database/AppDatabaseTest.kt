@@ -4,6 +4,7 @@ import com.tlpcraft.ktor.template.core.testing.testDatabase
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
+import kotlin.time.Instant
 import kotlinx.coroutines.test.runTest
 
 class AppDatabaseTest {
@@ -26,5 +27,13 @@ class AppDatabaseTest {
         database.close()
 
         assertTrue(!database.isHealthy())
+    }
+
+    @Test
+    fun `database precision truncates to microseconds`() {
+        assertEquals(
+            Instant.parse("2026-01-01T00:00:00.123456Z"),
+            Instant.parse("2026-01-01T00:00:00.123456789Z").toDatabasePrecision()
+        )
     }
 }

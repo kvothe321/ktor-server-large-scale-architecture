@@ -23,6 +23,7 @@ class ErrorHandlingTest {
             configureErrorHandling(loggers)
             routing {
                 get("/boom") { error("kaboom") }
+                get("/thing") { call.respondProblem(ApiProblem.notFound("Thing 42 does not exist.")) }
                 get("/page") {
                     val page = call.pageRequest()
                     call.respondOutcome(page, toProblem = ApiProblem::validation) { "page ${it.page} size ${it.size}" }
@@ -41,6 +42,14 @@ class ErrorHandlingTest {
         assertEquals(HttpStatusCode.NotFound, response.status)
         assertEquals(ContentType.Application.ProblemJson, response.contentType()?.withoutParameters())
         assertEquals("urn:problem-type:not-found", decode(response.bodyAsText()).type)
+    }
+
+    @Test
+    fun `a route's own 404 problem is not replaced by the fallback`() = problemTest {
+        val response = client.get("/thing")
+
+        assertEquals(HttpStatusCode.NotFound, response.status)
+        assertEquals("Thing 42 does not exist.", decode(response.bodyAsText()).detail)
     }
 
     @Test

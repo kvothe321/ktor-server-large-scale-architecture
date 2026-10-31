@@ -2,6 +2,7 @@ package com.tlpcraft.ktor.template.feature.notes.data
 
 import com.tlpcraft.ktor.template.core.data.outcomeCatching
 import com.tlpcraft.ktor.template.core.database.AppDatabase
+import com.tlpcraft.ktor.template.core.database.toDatabasePrecision
 import com.tlpcraft.ktor.template.core.domain.Outcome
 import com.tlpcraft.ktor.template.core.domain.asFailure
 import com.tlpcraft.ktor.template.core.domain.asSuccess
@@ -32,9 +33,12 @@ internal class ExposedNoteRepository(
     private val database: AppDatabase,
     private val logger: Logger
 ) : NoteRepository {
-    override suspend fun insert(note: Note): Outcome<Note, NoteError> = query {
-        NotesTable.insert { it.write(note) }
-        note
+    override suspend fun insert(note: Note): Outcome<Note, NoteError> {
+        val stored = note.toDatabasePrecision()
+        return query {
+            NotesTable.insert { it.write(stored) }
+            stored
+        }
     }
 
     override suspend fun find(id: NoteId): Outcome<Note, NoteError> = query {
@@ -51,9 +55,12 @@ internal class ExposedNoteRepository(
         Page(items, request, total)
     }
 
-    override suspend fun update(note: Note): Outcome<Note, NoteError> = query {
-        NotesTable.update({ NotesTable.id eq note.id.value }) { it.write(note) }
-    }.flatMap { updated -> if (updated > 0) note.asSuccess() else NoteError.NotFound(note.id).asFailure() }
+    override suspend fun update(note: Note): Outcome<Note, NoteError> {
+        val stored = note.toDatabasePrecision()
+        return query {
+            NotesTable.update({ NotesTable.id eq stored.id.value }) { it.write(stored) }
+        }.flatMap { updated -> if (updated > 0) stored.asSuccess() else NoteError.NotFound(stored.id).asFailure() }
+    }
 
     override suspend fun delete(id: NoteId): Outcome<Unit, NoteError> = query {
         NotesTable.deleteWhere { NotesTable.id eq id.value }
@@ -67,6 +74,8 @@ internal class ExposedNoteRepository(
         block = { database.transaction(block) }
     )
 }
+
+private fun Note.toDatabasePrecision(): Note = copy(createdAt = createdAt.toDatabasePrecision(), updatedAt = updatedAt.toDatabasePrecision())
 
 private fun UpdateBuilder<*>.write(note: Note) {
     this[NotesTable.id] = note.id.value

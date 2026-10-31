@@ -116,7 +116,9 @@ class NotesApiTest {
         val created = client.createNote("Temporary").body<NoteJson>()
 
         assertEquals(HttpStatusCode.NoContent, client.delete("/api/v1/notes/${created.id}").status)
-        assertEquals(HttpStatusCode.NotFound, client.get("/api/v1/notes/${created.id}").status)
+        val afterDelete = client.get("/api/v1/notes/${created.id}")
+        assertEquals(HttpStatusCode.NotFound, afterDelete.status)
+        assertEquals("Note ${created.id} does not exist.", afterDelete.body<ApiProblem>().detail)
         assertEquals(HttpStatusCode.NotFound, client.delete("/api/v1/notes/${created.id}").status)
     }
 
