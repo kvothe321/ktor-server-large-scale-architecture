@@ -1,0 +1,104 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build and check
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: 21
+
+      # Also validates the Gradle wrapper checksum.
+      - uses: gradle/actions/setup-gradle@v6
+
+      - name: Build, unit and integration tests, detekt, ktlint
+        run: ./gradlew build
+
+      - name: Upload reports
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: build-reports
+          path: |
+            **/build/reports/
+            **/build/test-results/
+          retention-days: 7
+
+  e2e:
+    name: End-to-end (packaged app, H2)
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - uses: gradle/actions/setup-gradle@v6
+
+      # Starts app.jar with an in-memory database and a fake weather provider, then runs the suite.
+      - name: Run end-to-end suite
+        run: ./gradlew :e2e:e2eTest
+
+      - name: Upload server log and reports
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: e2e-reports
+          path: |
+            e2e/build/e2e/server.log
+            e2e/build/reports/
+          retention-days: 7
+
+  docker:
+    name: End-to-end (Docker image, PostgreSQL)
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - uses: gradle/actions/setup-gradle@v6
+
+      - name: Start the stack
+        run: docker compose up --detach --build --wait --wait-timeout 180
+
+      # Same black-box suite, pointed at the containerised app. Weather calls reach the real Open-Meteo API here.
+      - name: Run end-to-end suite against docker compose
+        env:
+          E2E_BASE_URL: http://localhost:8080
+        run: ./gradlew :e2e:e2eTest
+
+      - name: Show container logs
+        if: failure()
+        run: docker compose logs
+
+      - name: Stop the stack
+        if: always()
+        run: docker compose down --volumes
