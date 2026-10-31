@@ -1,27 +1,26 @@
 # Gradle
 .gradle/
 build/
+.kotlin/
+*.jar
 !gradle/wrapper/gradle-wrapper.jar
-.gradle-cache/
 
 # IntelliJ IDEA / JetBrains IDEs
 .idea/
 *.iml
 out/
 
-# Logs
-logs/
+# Runtime data (local H2 database, uploaded files, logs)
+/data/
+/logs/
 *.log
+
+# Local environment overrides
+.env
 
 # OS files
 .DS_Store
 Thumbs.db
-
-# Kotlin specific
-*.class
-*.jar
-*.war
-*.ear
 
 # Temporary files
 *.swp

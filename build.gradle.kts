@@ -1,21 +1,10 @@
 plugins {
-    alias(libs.plugins.kotlin.jvm)
-    alias(libs.plugins.ktor)
-}
+    // Put third-party plugins on the build classpath once, so convention plugins can apply them by id.
+    alias(libs.plugins.kotlin.jvm) apply false
+    alias(libs.plugins.kotlin.serialization) apply false
+    alias(libs.plugins.ktor) apply false
+    alias(libs.plugins.detekt) apply false
+    alias(libs.plugins.kotlinter) apply false
 
-group = "com.tlpcraft.ktor.template.server"
-version = "0.0.1"
-
-application {
-    mainClass = "io.ktor.server.netty.EngineMain"
-}
-
-dependencies {
-    implementation(libs.ktor.server.core)
-    implementation(libs.ktor.server.netty)
-    implementation(libs.logback.classic)
-    implementation(libs.ktor.server.core)
-    implementation(libs.ktor.server.config.yaml)
-    testImplementation(libs.ktor.server.test.host)
-    testImplementation(libs.kotlin.test.junit)
+    alias(libs.plugins.template.git.hooks)
 }

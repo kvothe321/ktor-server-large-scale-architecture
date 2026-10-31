@@ -1,0 +1,36 @@
+# Runs the API against PostgreSQL: docker compose up --build
+services:
+  db:
+    image: postgres:18-alpine
+    environment:
+      POSTGRES_DB: app
+      POSTGRES_USER: app
+      POSTGRES_PASSWORD: app
+    ports:
+      - "5432:5432"
+    volumes:
+      - db-data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U app -d app"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  app:
+    build: .
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: jdbc:postgresql://db:5432/app
+      DATABASE_USER: app
+      DATABASE_PASSWORD: app
+      LOG_FORMAT: JSON
+    ports:
+      - "8080:8080"
+    volumes:
+      - uploads:/app/data/uploads
+
+volumes:
+  db-data:
+  uploads:
