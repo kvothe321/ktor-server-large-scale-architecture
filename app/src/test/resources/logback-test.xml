@@ -1,0 +1,11 @@
+<configuration>
+    <appender name="PLAIN" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} %-5level [%X{call-id:--}] %logger{36} - %msg %kvp%n</pattern>
+        </encoder>
+    </appender>
+
+    <root level="WARN">
+        <appender-ref ref="PLAIN" />
+    </root>
+</configuration>

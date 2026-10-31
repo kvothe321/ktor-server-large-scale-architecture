@@ -16,6 +16,8 @@ dependencyResolutionManagement {
 rootProject.name = "ktor-server-large-scale-architecture"
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
+include(":app")
+
 include(
     ":core:model",
     ":core:domain",

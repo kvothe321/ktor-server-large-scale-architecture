@@ -1,0 +1,21 @@
+<configuration>
+    <!-- LOG_FORMAT=PLAIN (default, human-readable) or JSON (one object per line, for log pipelines). -->
+    <appender name="PLAIN" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} %-5level [%X{call-id:--}] %logger{36} - %msg %kvp%n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="JSON" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder class="net.logstash.logback.encoder.LogstashEncoder" />
+    </appender>
+
+    <logger name="io.netty" level="WARN" />
+    <logger name="com.zaxxer.hikari" level="WARN" />
+    <logger name="org.flywaydb" level="INFO" />
+    <logger name="Exposed" level="WARN" />
+
+    <root level="${LOG_LEVEL:-INFO}">
+        <appender-ref ref="${LOG_FORMAT:-PLAIN}" />
+    </root>
+</configuration>
