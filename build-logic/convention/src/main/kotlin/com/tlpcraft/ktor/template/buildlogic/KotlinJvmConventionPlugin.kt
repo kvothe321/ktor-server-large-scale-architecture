@@ -13,23 +13,28 @@ import org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension
  */
 class KotlinJvmConventionPlugin : Plugin<Project> {
     override fun apply(target: Project): Unit = with(target) {
-        pluginManager.apply(libs.pluginId("kotlin-jvm"))
-        apply<DetektConventionPlugin>()
-        apply<KtlintConventionPlugin>()
+        configureKotlinJvm()
         apply<TestingConventionPlugin>()
+    }
+}
 
-        // Leaf names repeat across modules (`data`, `domain`, ...); name jars after the full path
-        // so they don't collide in the application distribution: feature-notes-data.jar.
-        extensions.configure<BasePluginExtension> {
-            archivesName.set(path.removePrefix(":").replace(':', '-'))
-        }
+/** Kotlin/JVM with the shared toolchain and compiler settings, plus detekt and ktlint. */
+internal fun Project.configureKotlinJvm() {
+    pluginManager.apply(libs.pluginId("kotlin-jvm"))
+    apply<DetektConventionPlugin>()
+    apply<KtlintConventionPlugin>()
 
-        extensions.configure<KotlinJvmProjectExtension> {
-            jvmToolchain(libs.version("jvmToolchain").toInt())
-            compilerOptions {
-                allWarningsAsErrors.set(true)
-                freeCompilerArgs.add("-Xconsistent-data-class-copy-visibility")
-            }
+    // Leaf names repeat across modules (`data`, `domain`, ...); name jars after the full path
+    // so they don't collide in the application distribution: feature-notes-data.jar.
+    extensions.configure<BasePluginExtension> {
+        archivesName.set(path.removePrefix(":").replace(':', '-'))
+    }
+
+    extensions.configure<KotlinJvmProjectExtension> {
+        jvmToolchain(libs.version("jvmToolchain").toInt())
+        compilerOptions {
+            allWarningsAsErrors.set(true)
+            freeCompilerArgs.add("-Xconsistent-data-class-copy-visibility")
         }
     }
 }

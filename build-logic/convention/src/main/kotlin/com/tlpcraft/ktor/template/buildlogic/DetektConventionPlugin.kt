@@ -23,7 +23,8 @@ class DetektConventionPlugin : Plugin<Project> {
             source.setFrom(
                 "src/main/kotlin",
                 "src/test/kotlin",
-                "src/testFixtures/kotlin"
+                "src/testFixtures/kotlin",
+                "src/e2eTest/kotlin"
             )
         }
 

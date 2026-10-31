@@ -56,6 +56,10 @@ gradlePlugin {
             id = libs.plugins.template.ktlint.get().pluginId
             implementationClass = "com.tlpcraft.ktor.template.buildlogic.KtlintConventionPlugin"
         }
+        register("e2e") {
+            id = libs.plugins.template.e2e.get().pluginId
+            implementationClass = "com.tlpcraft.ktor.template.buildlogic.E2eConventionPlugin"
+        }
         register("gitHooks") {
             id = libs.plugins.template.git.hooks.get().pluginId
             implementationClass = "com.tlpcraft.ktor.template.buildlogic.GitHooksConventionPlugin"

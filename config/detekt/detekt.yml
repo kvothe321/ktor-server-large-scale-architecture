@@ -21,13 +21,13 @@ complexity:
 naming:
   FunctionNaming:
     # Backticked test names read as sentences.
-    excludes: ['**/test/**', '**/testFixtures/**']
+    excludes: ['**/test/**', '**/testFixtures/**', '**/e2eTest/**']
 
 style:
   ForbiddenComment:
     active: true
   MagicNumber:
-    excludes: ['**/test/**', '**/testFixtures/**']
+    excludes: ['**/test/**', '**/testFixtures/**', '**/e2eTest/**']
     ignorePropertyDeclaration: true
     ignoreCompanionObjectPropertyDeclaration: true
     ignoreNamedArgument: true
@@ -36,7 +36,7 @@ style:
   MaxLineLength:
     # Kept in sync with .editorconfig, which ktlint enforces.
     maxLineLength: 160
-    excludes: ['**/test/**']
+    excludes: ['**/test/**', '**/e2eTest/**']
   UnusedPrivateMember:
     active: true
   ReturnCount:
